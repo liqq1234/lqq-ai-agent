@@ -1,0 +1,64 @@
+spring:
+  ai:
+    dashscope:
+      api-key: sk-c51082d9ba9b4666980b7e36fef0bc60
+  chat:
+    options:
+      model: qwq-plus
+  application:
+    name: lqq-ai-agent
+    profiles:
+      active: local
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/lqq_ai_agent?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&useUnicode=true
+    username: root
+    password: 4693090li
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  # mybatis-plus配置
+  mybatis-plus:
+    type-aliases-package: com.congge.domain
+    configuration:
+      # 下划线转驼峰
+      map-underscore-to-camel-case: true
+    # 全局配置
+    global-config:
+      db-config:
+        # 数据库id配置
+        id-type: auto
+        logic-delete-field: is_del # 全局逻辑删除字段名
+        logic-delete-value: 1   # 逻辑已删除值。可选，默认值为 1
+        logic-not-delete-value: 0 # 逻辑未删除值。可选，默认值为 0
+    mapper-locations: classpath:/mapper/**.xml
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: 'default'
+      paths-to-match: '/**'
+      packages-to-scan: com.lqq.lqqaiagent.controller
+
+knife4j:
+  enable: true
+  setting:
+    language: zh_cn
+
+server:
+  port: 8080
+
+logging:
+  level:
+    com.lqq.lqqaiagent: INFO
+    org.springframework: WARN
+
