@@ -1,4 +1,3 @@
-// java
 package com.lqq.lqqaiagent.advisor;
 
 import org.springframework.ai.chat.client.ChatClientRequest;
@@ -6,6 +5,7 @@ import org.springframework.ai.chat.client.ChatClientResponse;
 import org.springframework.ai.chat.client.advisor.api.BaseAdvisor;
 import org.springframework.ai.chat.client.advisor.api.AdvisorChain;
 import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.lang.NonNull;
 
 import java.util.Map;
 
@@ -29,7 +29,9 @@ public class ReReadingAdvisor implements BaseAdvisor {
 	}
 
 	@Override
-	public ChatClientRequest before(ChatClientRequest chatClientRequest, AdvisorChain advisorChain) {
+	@NonNull
+	public ChatClientRequest before(@NonNull ChatClientRequest chatClientRequest,
+									@NonNull AdvisorChain advisorChain) {
 		String augmentedUserText = PromptTemplate.builder()
 				.template(this.re2AdviseTemplate)
 				.variables(Map.of("re2_input_query", chatClientRequest.prompt().getUserMessage().getText()))
@@ -42,7 +44,9 @@ public class ReReadingAdvisor implements BaseAdvisor {
 	}
 
 	@Override
-	public ChatClientResponse after(ChatClientResponse chatClientResponse, AdvisorChain advisorChain) {
+	@NonNull
+	public ChatClientResponse after(@NonNull ChatClientResponse chatClientResponse,
+									@NonNull AdvisorChain advisorChain) {
 		return chatClientResponse;
 	}
 

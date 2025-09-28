@@ -11,7 +11,6 @@ import java.util.Map;
 /**
  * 聊天控制器 - 接口层
  * 只负责接收HTTP请求和返回响应，业务逻辑委托给Service层处理
- * 
  * 这是正确的分层架构实现：
  * - Controller层：处理HTTP请求/响应，参数验证，异常处理
  * - Service层：处理业务逻辑，调用AI模型，管理会话

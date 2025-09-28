@@ -7,9 +7,6 @@ spring:
       model: qwq-plus
   application:
     name: lqq-ai-agent
-    profiles:
-      active: local
-
   datasource:
     url: jdbc:mysql://localhost:3306/lqq_ai_agent?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&useUnicode=true
     username: root
@@ -17,7 +14,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   # mybatis-plus配置
   mybatis-plus:
-    type-aliases-package: com.congge.domain
+    type-aliases-package: com.lqq.lqqaiagent.domain
     configuration:
       # 下划线转驼峰
       map-underscore-to-camel-case: true

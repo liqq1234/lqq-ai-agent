@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/user")
 public class UsersController {
 
-    public static final String USER_LOGIN_STATE = "user_login_state";
-
     @Resource
     private UserService usersService;
 
