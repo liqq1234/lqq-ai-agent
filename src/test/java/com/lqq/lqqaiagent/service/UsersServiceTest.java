@@ -31,10 +31,11 @@ class UsersServiceTest {
     @Test
     void userRegister() {
         String email = "qingquanli325@gmail.com";
+        String username = "小泉";
         String password = "12345678";
         String checkPassword = "12345678";
 
-        long userId = userService.userRegister(email, password, checkPassword);
+        long userId = userService.userRegister(email, username,password, checkPassword);
 
         Assertions.assertTrue(userId > 0);
 

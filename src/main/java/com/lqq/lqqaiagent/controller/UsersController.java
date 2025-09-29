@@ -1,5 +1,6 @@
 package com.lqq.lqqaiagent.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.lqq.lqqaiagent.domain.User;
 import com.lqq.lqqaiagent.domain.request.UserLoginRequest;
 import com.lqq.lqqaiagent.domain.request.UserRegisterRequest;
@@ -7,10 +8,9 @@ import com.lqq.lqqaiagent.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 用户模块 Controller
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UsersController {
 
     @Resource
-    private UserService usersService;
+    private UserService userService;
 
     /**
      * 用户注册
@@ -31,12 +31,13 @@ public class UsersController {
          return null;
      }
      String username = userRegisterRequest.getUsername();
+     String email = userRegisterRequest.getEmail();
      String password = userRegisterRequest.getPassword();
      String checkPassword = userRegisterRequest.getCheckPassword();
      if(StringUtils.isAnyBlank(username, password, checkPassword)) {
          return null;
      }
-     return  usersService.userRegister(username, password, checkPassword);
+     return  userService.userRegister( email, username,password, checkPassword);
     }
 
     /**
@@ -52,6 +53,32 @@ public class UsersController {
         if(StringUtils.isAnyBlank(email, password)) {
             return null;
         }
-        return usersService.uerLogin(email, password, request);
+        return userService.uerLogin(email, password, request);
+    }
+
+    /**
+     * 根据用户名查询用户
+     * @param username 用户名
+     * @return 用户信息
+     */
+    @GetMapping("/search")
+    public List<User> queryByEmail(@RequestParam String username) {
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        if(StringUtils.isNotBlank(username)){
+            queryWrapper.like("username", username);
+        }
+        return userService.list(queryWrapper);
+    }
+    /**
+     * 根据用户id删除用户
+     * @param id 用户id
+     * @return 用户信息
+     */
+    @GetMapping("/search")
+    public boolean queryByEmail(@RequestBody long id ) {
+        if(id<=0) {
+            return false;
+        }
+        return userService.removeById(id);
     }
 }

@@ -28,10 +28,10 @@ public class UsersServiceImpl extends ServiceImpl<UserMapper, User>
     public static final  String USER_LOGIN_STATE = "userLoginState";
 
     @Override
-    public long userRegister(String email, String password, String checkPassword) {
+    public long userRegister(String email, String username, String password, String checkPassword) {
 
         // 1. 参数校验
-        if (StringUtils.isAnyBlank(email, password, checkPassword)) {
+        if (StringUtils.isAnyBlank(email, username, password, checkPassword)) {
             throw new IllegalArgumentException("参数不能为空");
         }
         if (!password.equals(checkPassword)) {
@@ -59,6 +59,7 @@ public class UsersServiceImpl extends ServiceImpl<UserMapper, User>
         // 4. 保存用户
         User user = new User();
         user.setEmail(email);
+        user.setUsername(username); // 新增：保存用户名
         user.setPassword(encryptPassword);
         userMapper.insert(user);
 
@@ -99,7 +100,6 @@ public class UsersServiceImpl extends ServiceImpl<UserMapper, User>
         User safetyUser = new User();
         safetyUser.setId(user.getId());
         safetyUser.setUsername(user.getEmail());
-        safetyUser.setPassword(user.getPassword());
         safetyUser.setEmail(user.getEmail());
         safetyUser.setPhone(user.getPhone());
         safetyUser.setStatus(user.getStatus());
@@ -108,6 +108,10 @@ public class UsersServiceImpl extends ServiceImpl<UserMapper, User>
         request.getSession().setAttribute(USER_LOGIN_STATE , user);
         return safetyUser; //这里记得要返回这个safetyUser
    }
+
+
+
+
 }
 
 

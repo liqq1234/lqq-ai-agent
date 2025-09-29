@@ -18,9 +18,8 @@ public class User {
     /**
      * 用户ID
      */
-    @TableId(type = IdType.AUTO)
+    @TableId(type = IdType.ASSIGN_ID)
     private Long id;
-
     /**
      * 用户名
      */
