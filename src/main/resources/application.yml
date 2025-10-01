@@ -12,6 +12,13 @@ spring:
     username: root
     password: 4693090li
     driver-class-name: com.mysql.cj.jdbc.Driver
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+       - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
+
+
   security:
     user:
        name: admin
@@ -57,7 +64,7 @@ knife4j:
     language: zh_cn
 
 server:
-  port: 8080
+  port: 8123
 
 logging:
   level:

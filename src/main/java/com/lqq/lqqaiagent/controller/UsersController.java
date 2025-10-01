@@ -10,7 +10,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.lqq.lqqaiagent.constant.UserConstant.ADMIN_ROLE;
+import static com.lqq.lqqaiagent.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
  * 用户模块 Controller
@@ -62,23 +67,43 @@ public class UsersController {
      * @return 用户信息
      */
     @GetMapping("/search")
-    public List<User> queryByEmail(@RequestParam String username) {
+    public List<User> searchUser (@RequestParam String username,HttpServletRequest request) {
+
+        if(!isAdmin(request)){
+            return new ArrayList<>();
+        }
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         if(StringUtils.isNotBlank(username)){
             queryWrapper.like("username", username);
         }
-        return userService.list(queryWrapper);
+        List<User> users =  userService.list(queryWrapper);
+        // 转换为脱敏后的列表
+        return users.stream()
+                .map(userService::toSafetyUser)
+                .collect(Collectors.toList());
     }
+
     /**
      * 根据用户id删除用户
      * @param id 用户id
      * @return 用户信息
      */
-    @GetMapping("/search")
-    public boolean queryByEmail(@RequestBody long id ) {
-        if(id<=0) {
+    @DeleteMapping("/delete")
+    public boolean deleteUser(@RequestParam long id ,HttpServletRequest request) {
+        if(!isAdmin(request)||id<=0) {
             return false;
         }
         return userService.removeById(id);
+    }
+
+    /**
+     * 获取当前登录用户，如果未登录或不是管理员返回空
+     */
+    private boolean isAdmin(HttpServletRequest request) {
+        User loginUser = (User) request.getSession().getAttribute(USER_LOGIN_STATE);
+        if(loginUser == null || loginUser.getRole() != ADMIN_ROLE) {
+            return false;
+        }
+        return true;
     }
 }

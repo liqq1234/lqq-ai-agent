@@ -1,0 +1,37 @@
+//用户登录
+POST http://localhost:8123/user/login
+Content-Type: application/json
+Content-Length: 60
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.7
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+{
+  "email": "3477981312@qq.com",
+  "password": "12345678"
+}
+###
+POST http://localhost:8123/user/register
+Content-Type: application/json
+
+{
+"username": "liqq",
+"email": "3477981313@qq.com",
+"password": "12345678",
+"checkPassword": "12345678"
+
+}
+
+###
+
+//搜索用户
+GET http://localhost:8123/user/search?username=小泉
+Accept: application/json
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.7
+Accept-Encoding: br, deflate, gzip, x-gzip
+Cookie: JSESSIONID=22056E74488D854D1E5CD0A9E224B703
+
+###
+
+//删除用户
+DELETE localhost:8123/user/delete?id=

@@ -12,7 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import static com.lqq.lqqaiagent.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
 * @author LQQ
@@ -25,7 +25,6 @@ public class UsersServiceImpl extends ServiceImpl<UserMapper, User>
     @Resource
     private UserMapper userMapper;
 
-    public static final  String USER_LOGIN_STATE = "userLoginState";
 
     @Override
     public long userRegister(String email, String username, String password, String checkPassword) {
@@ -90,28 +89,41 @@ public class UsersServiceImpl extends ServiceImpl<UserMapper, User>
             throw new BusinessException(403, "账号已被禁用，请联系管理员");
         }
 
-        // 4. 校验密码
+//         4. 校验密码
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
         if (!passwordEncoder.matches(password, user.getPassword())) {
             throw new BusinessException(401, "密码错误");
         }
 
-        //5.用户脱敏
-        User safetyUser = new User();
-        safetyUser.setId(user.getId());
-        safetyUser.setUsername(user.getEmail());
-        safetyUser.setEmail(user.getEmail());
-        safetyUser.setPhone(user.getPhone());
-        safetyUser.setStatus(user.getStatus());
-        safetyUser.setCreatedAt(new Date());
+        // 5. 用户脱敏
+        User safetyUser = toSafetyUser(user);
+
         // 6. 保存登录信息到 Session
         request.getSession().setAttribute(USER_LOGIN_STATE , user);
-        return safetyUser; //这里记得要返回这个safetyUser
+        return safetyUser;
    }
 
-
-
-
+    /**
+     * 生成脱敏后的用户对象
+     */
+    @Override
+    public User toSafetyUser(User user) {
+        if (user == null) {
+            return null;
+        }
+        User safetyUser = new User();
+        safetyUser.setId(user.getId());
+        safetyUser.setUsername(user.getUsername());
+        safetyUser.setEmail(user.getEmail());
+        safetyUser.setPhone(user.getPhone());
+        safetyUser.setRole(user.getRole());
+        safetyUser.setStatus(user.getStatus());
+        safetyUser.setCreatedAt(user.getCreatedAt());
+        safetyUser.setUpdatedAt(user.getUpdatedAt());
+        safetyUser.setLastLogin(user.getLastLogin());
+        safetyUser.setDeleted(user.getDeleted());
+        return safetyUser;
+    }
 }
 
 
