@@ -27,7 +27,14 @@ public interface UserService extends IService<User> {
      * @param password
      * @return
      */
-    User uerLogin(String email ,String password, HttpServletRequest request);
+    User userLogin(String email ,String password, HttpServletRequest request);
+
+    /**
+     * 用户注销
+     * @param request
+     * @return
+     */
+    Integer userLogout(HttpServletRequest request);
 
     /**
      * 用户脱敏

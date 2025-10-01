@@ -11,6 +11,18 @@ Accept: */*
   "password": "12345678"
 }
 ###
+//用户注销
+
+POST http://localhost:8123/user/logout
+Content-Type: application/json
+Content-Length: 60
+User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.7
+Accept-Encoding: br, deflate, gzip, x-gzip
+Accept: */*
+
+
+###
+//用户注册
 POST http://localhost:8123/user/register
 Content-Type: application/json
 
@@ -23,9 +35,8 @@ Content-Type: application/json
 }
 
 ###
-
-//搜索用户
-GET http://localhost:8123/user/search?username=小泉
+//查询用户
+GET http://localhost:8123/user/search?username=liqq
 Accept: application/json
 User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.7
 Accept-Encoding: br, deflate, gzip, x-gzip

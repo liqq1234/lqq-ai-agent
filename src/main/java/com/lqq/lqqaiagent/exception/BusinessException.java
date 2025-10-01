@@ -1,15 +1,21 @@
 package com.lqq.lqqaiagent.exception;
 
+import com.lqq.lqqaiagent.common.ErrorCode;
 import lombok.Getter;
 
 @Getter
 public class BusinessException extends RuntimeException {
-    private final int code;
-    private final String message;
+    private  int code;
+    private  String description;
 
-    public BusinessException(int code, String message) {
+    public BusinessException(String message,int code, String description) {
         super(message);
         this.code = code;
-        this.message = message;
+        this.description = description;
+    }
+    public BusinessException(ErrorCode errorCode,String description){
+        super(errorCode.getMessage());
+        this.code = errorCode.getCode();
+        this.description = description;
     }
 }
