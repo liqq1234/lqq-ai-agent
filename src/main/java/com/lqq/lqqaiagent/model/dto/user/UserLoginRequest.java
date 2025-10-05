@@ -1,4 +1,4 @@
-package com.lqq.lqqaiagent.domain.request;
+package com.lqq.lqqaiagent.model.dto.user;
 
 import lombok.Data;
 

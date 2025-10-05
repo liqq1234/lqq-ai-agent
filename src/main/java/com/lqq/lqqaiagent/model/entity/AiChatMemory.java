@@ -1,4 +1,4 @@
-package com.lqq.lqqaiagent.domain;
+package com.lqq.lqqaiagent.model.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

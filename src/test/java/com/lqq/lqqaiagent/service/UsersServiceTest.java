@@ -1,6 +1,6 @@
 package com.lqq.lqqaiagent.service;
 
-import com.lqq.lqqaiagent.domain.User;
+import com.lqq.lqqaiagent.model.entity.User;
 import jakarta.annotation.Resource;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

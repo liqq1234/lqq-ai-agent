@@ -1,9 +1,6 @@
-package com.lqq.lqqaiagent.domain;
+package com.lqq.lqqaiagent.model.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
 import java.util.Date;
@@ -23,7 +20,7 @@ public class User {
     /**
      * 用户名
      */
-    private String username;
+    private String userName;
 
     /**
      * 密码
@@ -41,14 +38,14 @@ public class User {
     private String phone;
 
     /**
-     * 用户角色：0-普通用户，1-管理员
+     * 用户角色："user"-普通用户，"admin"-管理员
      */
-    private Integer role;
+    private String role;
 
     /**
-     * 状态：0-禁用，1-启用
+     * 状态：disabled-禁用，enabled-启用
      */
-    private Integer status;
+    private String status;
 
     /**
      * 注册时间

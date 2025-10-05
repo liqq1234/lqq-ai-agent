@@ -1,48 +1,70 @@
-//用户登录
+### 用户登录
 POST http://localhost:8123/user/login
 Content-Type: application/json
-Content-Length: 60
-User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.7
-Accept-Encoding: br, deflate, gzip, x-gzip
-Accept: */*
 
 {
-  "email": "3477981312@qq.com",
+  "email": "1205475665@qq.com",
   "password": "12345678"
 }
-###
-//用户注销
 
+### 用户注销
 POST http://localhost:8123/user/logout
 Content-Type: application/json
-Content-Length: 60
-User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.7
-Accept-Encoding: br, deflate, gzip, x-gzip
-Accept: */*
 
-
-###
-//用户注册
+### 用户注册
 POST http://localhost:8123/user/register
 Content-Type: application/json
 
 {
-"username": "liqq",
-"email": "3477981313@qq.com",
+"userName": "admin",
+"email": "1205475665@qq.com",
 "password": "12345678",
 "checkPassword": "12345678"
 
 }
+### 获取当前登录用户
+GET http://localhost:8123/user/get/login
 
-###
-//查询用户
-GET http://localhost:8123/user/search?username=liqq
-Accept: application/json
-User-Agent: IntelliJ HTTP Client/IntelliJ IDEA 2024.3.7
-Accept-Encoding: br, deflate, gzip, x-gzip
-Cookie: JSESSIONID=22056E74488D854D1E5CD0A9E224B703
+### 添加用户（管理员权限）
+POST http://localhost:8123/user/add
+Content-Type: application/json
 
-###
+{
+  "email": "newuser2@example.com",
+  "userName": "newuser",
+  "userRole": "user"
+}
 
-//删除用户
-DELETE localhost:8123/user/delete?id=
+### 根据 ID 获取用户（管理员权限）
+GET http://localhost:8123/user/get?id=1974764530214825985
+
+### 根据 ID 获取用户包装类
+GET http://localhost:8123/user/get/vo?id=1974764530214825985
+
+### 删除用户（管理员权限）
+DELETE http://localhost:8123/user/delete
+Content-Type: application/json
+
+{
+  "id": 3
+}
+
+### 更新用户
+POST http://localhost:8123/user/update
+Content-Type: application/json
+
+{
+  "id": 1974764530214825985,
+  "userName": "liqq",
+  "role": "user"
+}
+
+### 分页获取用户封装列表（管理员权限）
+POST http://localhost:8123/user/list/page/vo
+Content-Type: application/json
+
+{
+  "pageNum": 1,
+  "pageSize": 10,
+  "userName": "liqq"
+}

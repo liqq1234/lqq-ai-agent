@@ -1,4 +1,4 @@
-package com.lqq.lqqaiagent.domain.request;
+package com.lqq.lqqaiagent.model.dto.user;
 
 import lombok.Data;
 
@@ -13,7 +13,7 @@ public class UserRegisterRequest implements Serializable {
     @Serial
     private static final long serialVersionUID = -2394960940159547277L;
 
-    private String username;
+    private String userName;
 
     private String email;
 

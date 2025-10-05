@@ -1,7 +1,7 @@
 package com.lqq.lqqaiagent.config.mysql;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.lqq.lqqaiagent.domain.AiChatMemory;
+import com.lqq.lqqaiagent.model.entity.AiChatMemory;
 import com.lqq.lqqaiagent.mapper.AiChatMemoryMapper;
 import com.lqq.lqqaiagent.service.AiChatMemoryService;
 import jakarta.annotation.Resource;

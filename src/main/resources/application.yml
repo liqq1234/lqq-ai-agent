@@ -17,12 +17,20 @@ spring:
     exclude:
       - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
        - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
-
-
   security:
     user:
        name: admin
        password: 123456
+    # springdoc-openapi
+    springdoc:
+      group-configs:
+        - group: 'default'
+          packages-to-scan: com.yupi.yuaicodemother.controller
+    # knife4j
+    knife4j:
+      enable: true
+      setting:
+        language: zh_cn
 
   # mybatis-plus配置
   mybatis-plus:
@@ -70,4 +78,5 @@ logging:
   level:
     com.lqq.lqqaiagent: INFO
     org.springframework: WARN
+
 
