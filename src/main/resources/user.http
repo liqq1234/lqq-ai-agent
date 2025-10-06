@@ -68,3 +68,10 @@ Content-Type: application/json
   "pageSize": 10,
   "userName": "liqq"
 }
+
+### 生成html页面
+POST http://localhost:8123/codegen/html
+Content-Type: application/x-www-form-urlencoded
+
+userInput=token是怎么算的
+

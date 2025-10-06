@@ -1,52 +1,50 @@
 spring:
-  ai:
-    dashscope:
-      api-key: sk-c51082d9ba9b4666980b7e36fef0bc60
-  chat:
-    options:
-      model: qwq-plus
   application:
     name: lqq-ai-agent
+
+  # Spring Boot 自动 DataSource 配置（MyBatis / JPA 使用）
   datasource:
     url: jdbc:mysql://localhost:3306/lqq_ai_agent?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&useUnicode=true
     username: root
     password: 4693090li
     driver-class-name: com.mysql.cj.jdbc.Driver
 
-  autoconfigure:
-    exclude:
-      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-       - org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration
+  # AI ChatMemory 自定义 MySQL 配置
+  ai:
+    dashscope:
+      api-key: sk-bf33677afba9468ca4edabb6a786dbe8
+    chat:
+      options:
+        model: qwen-plus
+      memory:
+        repository:
+          jdbc:
+            mysql:
+              jdbc-url: jdbc:mysql://localhost:3306/ai_chat_memory?useSSL=false&serverTimezone=Asia/Shanghai
+              username: root
+              password: 4693090li
+              driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # 安全配置
   security:
     user:
-       name: admin
-       password: 123456
-    # springdoc-openapi
-    springdoc:
-      group-configs:
-        - group: 'default'
-          packages-to-scan: com.yupi.yuaicodemother.controller
-    # knife4j
-    knife4j:
-      enable: true
-      setting:
-        language: zh_cn
+      name: admin
+      password: 123456
 
-  # mybatis-plus配置
+  # MyBatis-Plus 配置
   mybatis-plus:
     type-aliases-package: com.lqq.lqqaiagent.domain
     configuration:
-      # 下划线转驼峰
       map-underscore-to-camel-case: true
-    # 全局配置
     global-config:
       db-config:
-        # 数据库id配置
         id-type: auto
-        logic-delete-field: is_del # 全局逻辑删除字段名
-        logic-delete-value: 1   # 逻辑已删除值。可选，默认值为 1
-        logic-not-delete-value: 0 # 逻辑未删除值。可选，默认值为 0
+        logic-delete-field: is_del
+        logic-delete-value: 1
+        logic-not-delete-value: 0
     mapper-locations: classpath:/mapper/**.xml
+
+  # JPA 配置
   jpa:
     hibernate:
       ddl-auto: update
@@ -54,22 +52,6 @@ spring:
       hibernate:
         format_sql: true
     show-sql: true
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
-    tags-sorter: alpha
-    operations-sorter: alpha
-  api-docs:
-    path: /v3/api-docs
-  group-configs:
-    - group: 'default'
-      paths-to-match: '/**'
-      packages-to-scan: com.lqq.lqqaiagent.controller
-
-knife4j:
-  enable: true
-  setting:
-    language: zh_cn
 
 server:
   port: 8123
@@ -78,5 +60,3 @@ logging:
   level:
     com.lqq.lqqaiagent: INFO
     org.springframework: WARN
-
-

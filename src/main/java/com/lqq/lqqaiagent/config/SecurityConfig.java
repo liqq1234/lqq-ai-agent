@@ -1,4 +1,4 @@
-package com.lqq.lqqaiagent.config.mysql;
+package com.lqq.lqqaiagent.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

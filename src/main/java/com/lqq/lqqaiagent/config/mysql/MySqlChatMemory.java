@@ -1,8 +1,8 @@
 package com.lqq.lqqaiagent.config.mysql;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.lqq.lqqaiagent.model.entity.AiChatMemory;
 import com.lqq.lqqaiagent.mapper.AiChatMemoryMapper;
+import com.lqq.lqqaiagent.model.entity.AiChatMemory;
 import com.lqq.lqqaiagent.service.AiChatMemoryService;
 import jakarta.annotation.Resource;
 import org.springframework.ai.chat.memory.ChatMemory;
@@ -20,7 +20,7 @@ import java.util.List;
  * 基于MySQL ChatMemory实现
  */
 @Component
-public class  MySqlChatMemory implements ChatMemory {
+public class MySqlChatMemory implements ChatMemory {
 
     @Resource
     private AiChatMemoryMapper aiChatMemoryMapper;
