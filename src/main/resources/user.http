@@ -73,5 +73,5 @@ Content-Type: application/json
 POST http://localhost:8123/codegen/html
 Content-Type: application/x-www-form-urlencoded
 
-userInput=token是怎么算的
+userInput=你好，你是谁
 

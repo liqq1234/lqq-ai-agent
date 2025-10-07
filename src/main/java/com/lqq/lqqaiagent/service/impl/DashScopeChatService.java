@@ -1,61 +1,47 @@
 package com.lqq.lqqaiagent.service.impl;
 
-import com.alibaba.cloud.ai.dashscope.chat.DashScopeChatOptions;
 import com.lqq.lqqaiagent.model.dto.CodeGenResult;
 import com.lqq.lqqaiagent.util.CodeGenPrompts;
-import jakarta.annotation.Resource;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.client.advisor.SimpleLoggerAdvisor;
-import org.springframework.ai.chat.memory.ChatMemory;
-import org.springframework.ai.chat.model.ChatModel;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.ai.chat.client.ChatClient;
 
 @Service
 public class DashScopeChatService {
 
-    private final ChatClient dashScopeChatClient;
+    private final ChatClient inMemoryChatClient; // 未登录用户
+    private final ChatClient mySqlChatClient;    // 已登录用户
 
-    @Resource
-    private ChatMemory mySqlChatMemory; // 已登录用户使用
-
-    @Resource
-    @Qualifier("inMemoryChatMemory") // 未登录用户使用
-    private ChatMemory inMemoryChatMemory;
-
-
-    public DashScopeChatService(@Qualifier("dashscopeChatModel") ChatModel chatModel) {
-        this.dashScopeChatClient = ChatClient.builder(chatModel)
-                .defaultAdvisors(new SimpleLoggerAdvisor())
-                .defaultOptions(DashScopeChatOptions.builder()
-                        .withTopP(0.7)
-                        .build())
-                .build();
+    public DashScopeChatService(
+            @Qualifier("inMemoryChatClient") ChatClient inMemoryChatClient,
+            @Qualifier("mySqlChatClient") ChatClient mySqlChatClient) {
+        this.inMemoryChatClient = inMemoryChatClient;
+        this.mySqlChatClient = mySqlChatClient;
     }
 
     /**
-     * 通用生成逻辑
+     * 根据用户登录状态选择 ChatClient
      */
-    public String generate(String systemPrompt, String userInput) {
-        return dashScopeChatClient.prompt(systemPrompt + "\n" + userInput)
+    public String generate(String systemPrompt, String userInput, boolean loggedIn) {
+        ChatClient client = loggedIn ? mySqlChatClient : inMemoryChatClient;
+        return client.prompt(systemPrompt + "\n" + userInput)
                 .call()
                 .content();
     }
 
-
     /**
-     * 使用 HTML 代码生成 prompt
+     * HTML 代码生成
      */
-    public CodeGenResult generateHtml(String userInput) {
-        String htmlContent = generate(CodeGenPrompts.HTML_PROMPT, userInput);
-        return new CodeGenResult("html",htmlContent);
+    public CodeGenResult generateHtml(String userInput, boolean loggedIn) {
+        String htmlContent = generate(CodeGenPrompts.HTML_PROMPT, userInput, loggedIn);
+        return new CodeGenResult("html", htmlContent);
     }
 
     /**
-     * 使用多文件项目生成 prompt
+     * 多文件项目生成
      */
-    public CodeGenResult generateProject(String userInput) {
-        String projectContent = generate(CodeGenPrompts.MULTI_FILE_PROMPT, userInput);
-        return new CodeGenResult("project",projectContent);
+    public CodeGenResult generateProject(String userInput, boolean loggedIn) {
+        String projectContent = generate(CodeGenPrompts.MULTI_FILE_PROMPT, userInput, loggedIn);
+        return new CodeGenResult("project", projectContent);
     }
 }
