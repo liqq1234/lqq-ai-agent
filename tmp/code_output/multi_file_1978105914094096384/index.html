@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>兑换码兑换</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <h1>兑换码兑换</h1>
+      </div>
+      <div class="card-body">
+        <div id="successMessage" class="message success">✅ 兑换成功！奖励已发放。</div>
+        <div id="errorMessage" class="message error">❌ 兑换码无效，请检查后重试。</div>
+
+        <form id="redeemForm">
+          <div class="form-group">
+            <label for="code">请输入兑换码</label>
+            <input type="text" id="code" name="code" class="form-control" placeholder="例如：ABC123-XZY987" maxlength="20" required />
+          </div>
+          <button type="submit" class="btn-primary">立即兑换</button>
+        </form>
+
+        <h3 class="history-title">兑换历史</h3>
+        <ul id="redeemList" class="redeem-list">
+          <!-- 历史记录将由 JavaScript 动态插入 -->
+        </ul>
+        <p id="emptyHistory" class="empty-history">暂无兑换记录</p>
+      </div>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>欢迎光临</title>
+  <style>
+    /* 全局重置 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+      background-color: #f0f2f5;
+      color: #333;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* 装饰性背景图形 */
+    .bg-shape {
+      position: absolute;
+      z-index: -1;
+      opacity: 0.1;
+    }
+
+    .circle {
+      width: 200px;
+      height: 200px;
+      background-color: #0d6efd;
+      border-radius: 50%;
+      top: 10%;
+      left: 10%;
+    }
+
+    .triangle {
+      width: 0;
+      height: 0;
+      border-left: 100px solid transparent;
+      border-right: 100px solid transparent;
+      border-bottom: 180px solid #28a745;
+      top: 60%;
+      right: 10%;
+    }
+
+    .square {
+      width: 120px;
+      height: 120px;
+      background-color: #ffc107;
+      transform: rotate(45deg);
+      bottom: 10%;
+      left: 20%;
+    }
+
+    /* 主内容区域 */
+    .welcome-container {
+      text-align: center;
+      max-width: 800px;
+      padding: 2rem;
+    }
+
+    .welcome-title {
+      font-size: 3.5rem;
+      color: #1a1a1a;
+      margin-bottom: 1.5rem;
+    }
+
+    .typing-text {
+      font-size: 1.8rem;
+      color: #0d6efd;
+      height: 2.5rem;
+      overflow: hidden;
+      border-right: 3px solid #0d6efd;
+      white-space: nowrap;
+      animation: typing 3s steps(10) 1 normal both, blink 0.7s infinite;
+      display: inline-block;
+      max-width: 350px;
+    }
+
+    @keyframes typing {
+      from { width: 0; }
+      to { width: 100%; }
+    }
+
+    @keyframes blink {
+      from, to { border-color: transparent; }
+      50% { border-color: #0d6efd; }
+    }
+
+    .enter-btn {
+      margin-top: 3rem;
+      padding: 12px 30px;
+      background-color: #0d6efd;
+      color: white;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(13, 110, 253, 0.3);
+    }
+
+    .enter-btn:hover {
+      background-color: #0b5ed7;
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+    }
+
+    /* 欢迎进入后的弹出提示 */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background-color: white;
+      padding: 2.5rem;
+      border-radius: 12px;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      transform: scale(0.8);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal {
+      transform: scale(1);
+    }
+
+    .modal h2 {
+      font-size: 2.2rem;
+      color: #1e7e34;
+      margin-bottom: 1rem;
+    }
+
+    .modal p {
+      color: #555;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-btn {
+      padding: 10px 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    .modal-btn:hover {
+      background-color: #218838;
+    }
+
+    /* 响应式适配 */
+    @media (max-width: 768px) {
+      .welcome-title {
+        font-size: 2.8rem;
+      }
+
+      .typing-text {
+        font-size: 1.5rem;
+      }
+
+      .enter-btn {
+        padding: 10px 25px;
+        font-size: 1rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .welcome-title {
+        font-size: 2.3rem;
+      }
+
+      .typing-text {
+        font-size: 1.3rem;
+      }
+
+      .modal {
+        padding: 1.8rem;
+        margin: 1rem;
+      }
+
+      .modal h2 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 装饰性背景 -->
+  <div class="bg-shape circle"></div>
+  <div class="bg-shape triangle"></div>
+  <div class="bg-shape square"></div>
+
+  <!-- 主欢迎区域 -->
+  <div class="welcome-container">
+    <h1 class="welcome-title">欢迎光临</h1>
+    <div class="typing-text" id="typingText"></div>
+    <button class="enter-btn" id="enterBtn">进入主页</button>
+  </div>
+
+  <!-- 弹窗提示 -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <h2>🎉 欢迎您！</h2>
+      <p>感谢您的访问，愿您在这里有愉快的体验。<br>点击下方按钮继续探索。</p>
+      <button class="modal-btn" id="closeModalBtn">开始探索</button>
+    </div>
+  </div>
+
+  <script>
+    // 打字机效果
+    const text = '欢迎光临';
+    const typingText = document.getElementById('typingText');
+
+    function typeWriter() {
+      let i = 0;
+      typingText.textContent = '';
+      const timer = setInterval(() => {
+        if (i < text.length) {
+          typingText.textContent += text.charAt(i);
+          i++;
+        } else {
+          clearInterval(timer);
+        }
+      }, 200);
+    }
+
+    // 页面加载完成后启动打字动画
+    window.addEventListener('DOMContentLoaded', () => {
+      typeWriter();
+    });
+
+    // 弹窗控制
+    const enterBtn = document.getElementById('enterBtn');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    enterBtn.addEventListener('click', () => {
+      modalOverlay.classList.add('active');
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+      modalOverlay.classList.remove('active');
+      // 可以跳转页面，例如：
+      // window.location.href = 'home.html';
+      alert('您已进入主页！');
+    });
+  </script>
+
+</body>
+</html>
