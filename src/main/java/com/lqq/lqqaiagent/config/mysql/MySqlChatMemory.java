@@ -3,7 +3,9 @@ package com.lqq.lqqaiagent.config.mysql;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.lqq.lqqaiagent.mapper.AiChatMemoryMapper;
 import com.lqq.lqqaiagent.model.entity.AiChatMemory;
+import com.lqq.lqqaiagent.model.entity.User;
 import com.lqq.lqqaiagent.service.AiChatMemoryService;
+import com.lqq.lqqaiagent.util.UserContext;
 import jakarta.annotation.Resource;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.AssistantMessage;
@@ -12,7 +14,6 @@ import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,19 +30,21 @@ public class MySqlChatMemory implements ChatMemory {
 
 
     @Override
-
     public void add(String conversationId, List<Message> messages) {
+        //获取当前登录用户
+        User currentUser = UserContext.getUser();
+        Long userId = currentUser != null ? currentUser.getId() : null;
         List<AiChatMemory> aiChatMemorieList = new ArrayList<>();
         messages.forEach(message -> {
             AiChatMemory aiChatMemory = new AiChatMemory();
             aiChatMemory.setChatId(conversationId);
+            aiChatMemory.setUserId(userId);
             aiChatMemory.setType(message.getMessageType().getValue());
             aiChatMemory.setContent(message.getText());
             aiChatMemorieList.add(aiChatMemory);
         });
         aiChatMemoryService.saveOrUpdateBatch(aiChatMemorieList);
     }
-
     @Override
     public List<Message> get(String conversationId) {
         int lastN = 20; // 默认获取最近20条消息
@@ -51,11 +54,9 @@ public class MySqlChatMemory implements ChatMemory {
                         .orderByAsc("create_time") // 改为正序，确保消息按时间顺序返回
                         .last("limit " + lastN)
         );
-
         if (CollectionUtils.isEmpty(aiChatMemoryList)) {
             return List.of();
         }
-
         return aiChatMemoryList.stream()
                 .map(aiChatMemory -> {
                     String type = aiChatMemory.getType();
@@ -72,7 +73,6 @@ public class MySqlChatMemory implements ChatMemory {
                 .toList();
 
     }
-
     @Override
     public void clear(String conversationId) {
         aiChatMemoryMapper.delete(new QueryWrapper<AiChatMemory>()

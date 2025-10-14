@@ -70,8 +70,11 @@ Content-Type: application/json
 }
 
 ### 生成html页面
-POST http://localhost:8123/codegen/html
+POST http://localhost:8123/codegen/html?userMessage=生成一个欢迎光临的页面
 Content-Type: application/x-www-form-urlencoded
 
-userInput=你好，你是谁
+
+### 生成前端项目文件
+POST http://localhost:8123/codegen/project?userMessage=帮我写一个兑换码兑换界面
+Content-Type: application/x-www-form-urlencoded
 

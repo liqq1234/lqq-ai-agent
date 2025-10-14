@@ -1,41 +1,38 @@
 package com.lqq.lqqaiagent.controller;
 
-import com.lqq.lqqaiagent.model.dto.CodeGenResult;
-import com.lqq.lqqaiagent.model.entity.User;
-import com.lqq.lqqaiagent.service.impl.DashScopeChatService;
+import com.lqq.lqqaiagent.model.enums.CodeGenTypeEnum;
+import com.lqq.lqqaiagent.service.facade.AiCodeGeneratorFacade;
 import jakarta.annotation.Resource;
-import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-import static com.lqq.lqqaiagent.constant.UserConstant.USER_LOGIN_STATE;
+import java.io.File;
 
 @RestController
 @RequestMapping("/codegen")
 public class CodeGenController {
 
     @Resource
-    private DashScopeChatService chatService;
+    private AiCodeGeneratorFacade aiCodeGeneratorFacade;
 
+    /**
+     * 生成 HTML 模式代码并保存
+     */
     @PostMapping("/html")
-    public CodeGenResult generateHtml(HttpServletRequest request, @RequestParam String userInput) {
-        boolean loggedIn = isLoggedIn(request);
-        return chatService.generateHtml(userInput, loggedIn);
+    public String generateHtml(@RequestParam String userMessage) {
+        File savedDir = aiCodeGeneratorFacade.generateAndSaveCode(userMessage, CodeGenTypeEnum.HTML);
+        return "HTML 代码已生成并保存到：" + savedDir.getAbsolutePath();
     }
 
+    /**
+     * 生成多文件项目并保存
+     */
     @PostMapping("/project")
-    public CodeGenResult generateProject(HttpServletRequest request, @RequestParam String userInput) {
-        boolean loggedIn = isLoggedIn(request);
-        return chatService.generateProject(userInput, loggedIn);
+    public String generateProject(@RequestParam String userMessage) {
+        File savedDir = aiCodeGeneratorFacade.generateAndSaveCode(userMessage, CodeGenTypeEnum.MULTI_FILE);
+        return "多文件项目已生成并保存到：" + savedDir.getAbsolutePath();
     }
 
-    private Boolean isLoggedIn(HttpServletRequest request) {
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        if (userObj instanceof User currentUser && currentUser.getId() != null) {
-            return true;
-        }
-        return false;
-    }
+
+
+
 }
