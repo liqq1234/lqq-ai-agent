@@ -1,0 +1,77 @@
+spring:
+  application:
+    name: lqq-ai-agent
+
+  # Spring Boot 自动 DataSource 配置（MyBatis / JPA 使用）
+  datasource:
+    url: jdbc:mysql://localhost:3306/lqq_ai_agent?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&useUnicode=true
+    username: root
+    password: 4693090li
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # AI ChatMemory 自定义 MySQL 配置
+  ai:
+    dashscope:
+      api-key: sk-bf33677afba9468ca4edabb6a786dbe8
+    chat:
+      options:
+        model: qwen-plus
+      memory:
+        repository:
+          jdbc:
+            mysql:
+              jdbc-url: jdbc:mysql://localhost:3306/ai_chat_memory?useSSL=false&serverTimezone=Asia/Shanghai
+              username: root
+              password: 4693090li
+              driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # Redis 配置
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 123456 # Redis 密码（如果没有密码则注释掉此行）
+      database: 0
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 8    # 连接池最大连接数
+          max-idle: 8      # 连接池最大空闲连接数
+          min-idle: 0      # 连接池最小空闲连接数
+          max-wait: -1ms   # 连接池最大阻塞等待时间
+
+  # 安全配置
+  security:
+    user:
+      name: admin
+      password: 123456
+
+  # MyBatis-Plus 配置
+  mybatis-plus:
+    type-aliases-package: com.lqq.lqqaiagent.domain
+    configuration:
+      map-underscore-to-camel-case: true
+    global-config:
+      db-config:
+        id-type: auto
+        logic-delete-field: is_del
+        logic-delete-value: 1
+        logic-not-delete-value: 0
+    mapper-locations: classpath:/mapper/**.xml
+
+  # JPA 配置
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+server:
+  port: 8123
+
+logging:
+  level:
+    com.lqq.lqqaiagent: INFO
+    org.springframework: WARN
