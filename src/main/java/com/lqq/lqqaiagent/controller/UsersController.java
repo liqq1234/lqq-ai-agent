@@ -16,6 +16,7 @@ import com.lqq.lqqaiagent.model.vo.UserVO;
 import com.lqq.lqqaiagent.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,6 +24,7 @@ import java.util.List;
 /**
  * 用户模块 Controller
  */
+@Slf4j
 @RestController
 @RequestMapping("/user")
 public class UsersController {
@@ -35,18 +37,15 @@ public class UsersController {
      */
     @PostMapping("/register")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest request) {
-        try {
-            Long userId = userService.userRegister(
-                    request.getEmail(),
-                    request.getUserName(),
-                    request.getPassword(),
-                    request.getCheckPassword()
-            );
-            return ResultUtils.success(userId);
-        }  catch (Exception e) {
-            e.printStackTrace();
-            return ResultUtils.error(ErrorCode.SYSTEM_ERROR);
-        }
+        log.info("用户注册请求，邮箱：{}", request.getEmail());
+        Long userId = userService.userRegister(
+                request.getEmail(),
+                request.getUserName(),
+                request.getPassword(),
+                request.getCheckPassword()
+        );
+        log.info("用户注册成功，userId：{}", userId);
+        return ResultUtils.success(userId);
     }
 
     /**
@@ -55,7 +54,9 @@ public class UsersController {
     @PostMapping("/login")
     public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest request, HttpServletRequest httpRequest) {
         ThrowUtils.throwIf(request==null,ErrorCode.PARAMS_ERROR);
+        log.info("用户登录请求，邮箱：{}", request.getEmail());
         LoginUserVO loginUserVO = userService.userLogin(request.getEmail(), request.getPassword(), httpRequest);
+        log.info("用户登录成功，userId：{}", loginUserVO.getId());
         return ResultUtils.success(loginUserVO);
 
     }
@@ -74,16 +75,19 @@ public class UsersController {
     @PostMapping("/logout")
     public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
         ThrowUtils.throwIf(request==null,ErrorCode.PARAMS_ERROR);
+        log.info("用户注销请求");
         boolean result = userService.userLogout(request);
+        log.info("用户注销成功");
         return ResultUtils.success(result);
     }
     /**
-     * 用户注册
+     * 管理员添加用户
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest) {
         ThrowUtils.throwIf(userAddRequest==null,ErrorCode.PARAMS_ERROR);
+        log.info("管理员添加用户，邮箱：{}", userAddRequest.getEmail());
         User user = new User();
         BeanUtil.copyProperties(userAddRequest,user);
         // 默认密码 12345678
@@ -93,6 +97,7 @@ public class UsersController {
         user.setPassword(encryptPassword);
         boolean result = userService.save(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        log.info("管理员添加用户成功，userId：{}", user.getId());
         return ResultUtils.success(user.getId());
     }
 

@@ -29,4 +29,21 @@ public interface AppService extends IService<App> {
      * 批量封装 AppVO 列表
      */
     List<AppVO> getAppVOList(List<App> list);
+
+    /**
+     * 根据 ID 获取应用信息（带缓存）
+     * 
+     * @param id 应用 ID
+     * @return 应用信息
+     */
+    AppVO getAppByIdWithCache(Long id);
+
+    /**
+     * 获取热门应用列表（带缓存）
+     * 
+     * @return 热门应用列表
+     */
+    List<AppVO> getHotAppListWithCache();
+
+    boolean removeById(Long id);
 }

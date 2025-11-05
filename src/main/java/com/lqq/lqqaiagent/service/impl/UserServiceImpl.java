@@ -16,14 +16,16 @@ import com.lqq.lqqaiagent.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.lqq.lqqaiagent.constant.UserConstant.USER_LOGIN_STATE;
+import static com.lqq.lqqaiagent.constant.UserConstant.*;
 
 /**
  * 用户表 Service 实现
@@ -33,6 +35,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private UserMapper userMapper;
+
+    @Resource
+    private RedisTemplate<String, Object> redisTemplate;
 
     private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
@@ -106,6 +111,48 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 6. 返回脱敏用户
         return this.getLoginUserVO(user);
     }
+
+    /**
+     * 根据用户 ID 获取用户信息（带缓存）
+     * 缓存策略：Cache Aside Pattern（旁路缓存模式）
+     * 1. 先查缓存，命中则直接返回
+     * 2. 缓存未命中，查数据库
+     * 3. 将数据库结果写入缓存（包括空对象，防止缓存穿透）
+     *
+     * @param userId 用户 ID
+     * @return 用户信息
+     */
+    public User getUserByIdWithCache(Long userId) {
+        if (userId == null || userId <= 0) {
+            return null;
+        }
+
+        // 1. 构造缓存 Key
+        String cacheKey = USER_CACHE_KEY + userId;
+
+        // 2. 从 Redis 查询缓存
+        User cachedUser = (User) redisTemplate.opsForValue().get(cacheKey);
+        if (cachedUser != null) {
+            // 缓存命中，直接返回（包括空对象）
+            return cachedUser.getId() != null ? cachedUser : null;
+        }
+
+        // 3. 缓存未命中，查询数据库
+        User user = this.getById(userId);
+
+        // 4. 写入缓存
+        if (user != null) {
+            // 用户存在，缓存 30 分钟
+            redisTemplate.opsForValue().set(cacheKey, user, CACHE_EXPIRE_TIME, TimeUnit.MINUTES);
+        } else {
+            // 用户不存在，缓存空对象 5 分钟，防止缓存穿透
+            User emptyUser = new User();
+            redisTemplate.opsForValue().set(cacheKey, emptyUser, NULL_CACHE_EXPIRE_TIME, TimeUnit.MINUTES);
+        }
+
+        return user;
+    }
+
     @Override
     public User getLoginUser(HttpServletRequest request) {
         //先判断是否登录
@@ -114,9 +161,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if(currentUser == null || currentUser.getId() == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN);
         }
-        //从数据库查询
+        //从缓存查询（优先使用缓存，提升性能）
         long userId = currentUser.getId();
-        currentUser = this.getById(userId);
+        currentUser = this.getUserByIdWithCache(userId);
         if(currentUser == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN);
         }
@@ -195,6 +242,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public String getEncryptPassword(String password) {
         return passwordEncoder.encode(password);
+    }
+
+    /**
+     * 重写 updateById 方法，更新用户后删除缓存
+     * 缓存一致性策略：先更新数据库，再删除缓存
+     *
+     * @param user 用户信息
+     * @return 是否更新成功
+     */
+    @Override
+    public boolean updateById(User user) {
+        // 1. 先更新数据库
+        boolean result = super.updateById(user);
+
+        // 2. 更新成功后，删除缓存
+        if (result && user.getId() != null) {
+            String cacheKey = USER_CACHE_KEY + user.getId();
+            redisTemplate.delete(cacheKey);
+        }
+
+        return result;
     }
 }
 

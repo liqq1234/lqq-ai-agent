@@ -6,6 +6,7 @@ import com.lqq.lqqaiagent.annotation.AuthCheck;
 import com.lqq.lqqaiagent.common.BaseResponse;
 import com.lqq.lqqaiagent.common.DeleteRequest;
 import com.lqq.lqqaiagent.common.ResultUtils;
+import com.lqq.lqqaiagent.constant.AppConstant;
 import com.lqq.lqqaiagent.constant.UserConstant;
 import com.lqq.lqqaiagent.exception.ErrorCode;
 import com.lqq.lqqaiagent.exception.ThrowUtils;
@@ -17,12 +18,14 @@ import com.lqq.lqqaiagent.service.AppService;
 import com.lqq.lqqaiagent.service.UserService;
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/app")
 public class AppController {
@@ -40,21 +43,23 @@ public class AppController {
         ThrowUtils.throwIf(StringUtils.isBlank(request.getInitPrompt()), ErrorCode.PARAMS_ERROR, "initPrompt 必填");
         ThrowUtils.throwIf(StringUtils.isBlank(request.getAppName()), ErrorCode.PARAMS_ERROR, "应用名称必填");
         User loginUser = userService.getLoginUser(httpRequest);
+        log.info("用户创建应用，userId：{}，应用名称：{}", loginUser.getId(), request.getAppName());
 
         App app = new App();
         app.setAppName(request.getAppName());
         app.setCover(request.getCover());
         app.setInitPrompt(request.getInitPrompt());
         app.setCodeGenType(request.getCodeGenType());
-        app.setPriority(0);
+        app.setPriority(AppConstant.DEFAULT_PRIORITY);
         app.setUserId(loginUser.getId());
         Date now = new Date();
         app.setCreateTime(now);
         app.setUpdateTime(now);
         app.setEditTime(now);
-        app.setIsDelete(0);
+        app.setIsDelete(AppConstant.NOT_DELETED);
         boolean saved = appService.save(app);
         ThrowUtils.throwIf(!saved, ErrorCode.OPERATION_ERROR);
+        log.info("应用创建成功，appId：{}", app.getId());
         return ResultUtils.success(app.getId());
     }
 
@@ -87,7 +92,7 @@ public class AppController {
         ThrowUtils.throwIf(!exist.getUserId().equals(loginUser.getId()), ErrorCode.NO_AUTH);
         App update = new App();
         update.setId(id);
-        update.setIsDelete(1);
+        update.setIsDelete(AppConstant.DELETED);
         update.setUpdateTime(new Date());
         boolean result = appService.updateById(update);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
@@ -99,10 +104,15 @@ public class AppController {
     public BaseResponse<AppVO> getMyAppById(@RequestParam("id") long id, HttpServletRequest httpRequest) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
         User loginUser = userService.getLoginUser(httpRequest);
-        App app = appService.getById(id);
-        ThrowUtils.throwIf(app == null || app.getIsDelete() != null && app.getIsDelete() == 1, ErrorCode.NOT_FOUND_ERROR);
-        ThrowUtils.throwIf(!app.getUserId().equals(loginUser.getId()), ErrorCode.NO_AUTH);
-        return ResultUtils.success(appService.getAppVO(app));
+        
+        // 使用缓存方法获取应用（已经是 VO，包含脱敏后的数据）
+        AppVO appVO = appService.getAppByIdWithCache(id);
+        ThrowUtils.throwIf(appVO == null, ErrorCode.NOT_FOUND_ERROR);
+        
+        // 权限校验：只能查看自己的应用
+        ThrowUtils.throwIf(!appVO.getUserId().equals(loginUser.getId()), ErrorCode.NO_AUTH);
+        
+        return ResultUtils.success(appVO);
     }
 
     // 用户分页查询自己的应用列表（按名称、每页最多 20 条）
@@ -115,7 +125,7 @@ public class AppController {
 
         QueryWrapper<App> qw = new QueryWrapper<>();
         qw.eq("userid", loginUser.getId());
-        qw.eq("isdelete", 0);
+        qw.eq("isdelete", AppConstant.NOT_DELETED);
         if (StringUtils.isNotBlank(request.getAppName())) {
             qw.like("appname", request.getAppName());
         }
@@ -137,7 +147,7 @@ public class AppController {
         int pageSize = Math.min(20, Math.max(1, request.getPageSize()));
 
         QueryWrapper<App> qw = new QueryWrapper<>();
-        qw.eq("isdelete", 0);
+        qw.eq("isdelete", AppConstant.NOT_DELETED);
         if (StringUtils.isNotBlank(request.getAppName())) {
             qw.like("appname", request.getAppName());
         }
@@ -151,6 +161,14 @@ public class AppController {
         return ResultUtils.success(voPage);
     }
 
+    // 获取热门应用列表（首页展示，带缓存）
+    @GetMapping("/list/hot")
+    public BaseResponse<List<AppVO>> getHotAppList() {
+        // 使用缓存方法获取热门应用列表（已经是 VO 列表，包含脱敏后的数据）
+        List<AppVO> hotAppList = appService.getHotAppListWithCache();
+        return ResultUtils.success(hotAppList);
+    }
+
     // 管理员根据 id 删除任意应用（逻辑删除）
     @DeleteMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -159,12 +177,14 @@ public class AppController {
         long id = deleteRequest.getId();
         App exist = appService.getById(id);
         ThrowUtils.throwIf(exist == null, ErrorCode.NOT_FOUND_ERROR);
+        log.info("管理员删除应用，appId：{}", id);
         App update = new App();
         update.setId(id);
-        update.setIsDelete(1);
+        update.setIsDelete(AppConstant.DELETED);
         update.setUpdateTime(new Date());
         boolean result = appService.updateById(update);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        log.info("应用删除成功，appId：{}", id);
         return ResultUtils.success(true);
     }
 
@@ -205,8 +225,11 @@ public class AppController {
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<AppVO> getByIdAdmin(@RequestParam("id") long id) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.PARAMS_ERROR);
-        App app = appService.getById(id);
-        ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR);
-        return ResultUtils.success(appService.getAppVO(app));
+        
+        // 使用缓存方法获取应用（已经是 VO，包含脱敏后的数据）
+        AppVO appVO = appService.getAppByIdWithCache(id);
+        ThrowUtils.throwIf(appVO == null, ErrorCode.NOT_FOUND_ERROR);
+        
+        return ResultUtils.success(appVO);
     }
 }
