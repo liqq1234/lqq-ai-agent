@@ -1,0 +1,61 @@
+spring:
+  application:
+    name: lqq-ai-chat
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/lqq_ai_agent?useSSL=false&serverTimezone=UTC&characterEncoding=utf8&useUnicode=true
+    username: root
+    password: 4693090li
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 123456
+      database: 0
+      timeout: 3000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+          max-wait: -1ms
+
+  security:
+    user:
+      name: admin
+      password: 123456
+
+  mybatis-plus:
+    type-aliases-package: com.lqq.lqqaiagent.model
+    configuration:
+      map-underscore-to-camel-case: true
+    global-config:
+      db-config:
+        id-type: auto
+        logic-delete-field: is_del
+        logic-delete-value: 1
+        logic-not-delete-value: 0
+    mapper-locations: classpath:/mapper/**.xml
+
+server:
+  port: 8123
+
+logging:
+  level:
+    com.lqq.lqqaiagent: INFO
+    org.springframework: WARN
+
+langchain4j:
+  open-ai:
+    chat-model:
+      base-url: http://localhost:11434/v1
+      model-name: "qwen2.5:7b"
+      api-key: ollama
+      max-tokens: 8192
+      log-requests: true
+      log-responses: true
+
+dashscope:
+  api-key: sk-b37df5b2487645bda94ee7423cbbe148

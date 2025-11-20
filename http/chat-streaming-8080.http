@@ -1,0 +1,264 @@
+### ===========================================
+### 流式聊天功能测试文件
+### 项目：lqq-ai-agent 流式聊天模块
+### 端口：8080 (默认)
+### 更新时间：2025-11-20
+### ===========================================
+
+### 1. 健康检查 - 验证聊天服务状态
+GET http://localhost:8080/chat/health
+Accept: application/json
+
+### 2. 普通聊天测试 - 简单问候
+POST http://localhost:8123/chat/message
+Content-Type: application/json
+
+{
+  "message": "你好，请简单自我介绍一下"
+}
+
+### 3. 普通聊天测试 - 技术问题
+POST http://localhost:8080/chat/message
+Content-Type: application/json
+
+{
+  "message": "请解释一下什么是流式输出，它有什么优势？"
+}
+
+### 4. 普通聊天测试 - 代码生成
+POST http://localhost:8080/chat/message
+Content-Type: application/json
+
+{
+  "message": "帮我写一个简单的Java工具类，包含字符串处理方法"
+}
+
+### 5. 流式聊天测试 (SSE) - 简单对话
+POST http://localhost:8123/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": "请详细介绍一下Spring Boot的核心特性"
+}
+
+### 6. 流式聊天测试 (SSE) - 长文本生成
+POST http://localhost:8080/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": "请写一篇关于人工智能发展历程的文章，包含关键里程碑和未来展望"
+}
+
+### 7. 流式聊天测试 (SSE) - 代码生成
+POST http://localhost:8080/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": "请帮我设计一个完整的用户管理系统的数据库表结构，包含用户表、角色表、权限表等"
+}
+
+### 8. 简单流式聊天测试 - 纯文本流
+POST http://localhost:8080/chat/stream-simple
+Content-Type: application/json
+Accept: text/plain
+
+{
+  "message": "请解释一下LangChain4j框架的主要组件和用途"
+}
+
+### 9. 简单流式聊天测试 - 技术问答
+POST http://localhost:8080/chat/stream-simple
+Content-Type: application/json
+Accept: text/plain
+
+{
+  "message": "如何在Java中实现响应式编程？请给出具体示例"
+}
+
+### 10. 简单流式聊天测试 - 创意内容
+POST http://localhost:8080/chat/stream-simple
+Content-Type: application/json
+Accept: text/plain
+
+{
+  "message": "请创作一个关于程序员日常生活的幽默小故事"
+}
+
+### ===========================================
+### 错误处理和边界测试
+### ===========================================
+
+### 11. 空消息测试 - 普通聊天
+POST http://localhost:8080/chat/message
+Content-Type: application/json
+
+{
+  "message": ""
+}
+
+### 12. 空消息测试 - 流式聊天
+POST http://localhost:8080/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": ""
+}
+
+### 13. 长消息测试 - 流式聊天
+POST http://localhost:8080/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": "请详细分析以下技术栈的优缺点：Spring Boot、Vue.js、MySQL、Redis、Docker、Kubernetes、Jenkins、Git、Maven、JUnit、Mockito、Swagger、Nginx、Linux、AWS，并给出在企业级项目中的最佳实践建议，包括架构设计、性能优化、安全考虑、运维部署等方面的详细说明"
+}
+
+### 14. 特殊字符测试
+POST http://localhost:8080/chat/message
+Content-Type: application/json
+
+{
+  "message": "测试特殊字符：@#$%^&*()_+{}[]|\"':;?/>.<,~`，请正常回复"
+}
+
+### 15. 中英文混合测试
+POST http://localhost:8080/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": "Please explain the concept of 微服务架构 and its benefits in modern software development"
+}
+
+### ===========================================
+### 性能和压力测试
+### ===========================================
+
+### 16. 快速响应测试
+POST http://localhost:8080/chat/message
+Content-Type: application/json
+
+{
+  "message": "1+1等于几？"
+}
+
+### 17. 复杂计算测试
+POST http://localhost:8080/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": "请计算斐波那契数列的前20项，并解释其数学原理和应用场景"
+}
+
+### 18. 多轮对话模拟 - 第一轮
+POST http://localhost:8080/chat/message
+Content-Type: application/json
+
+{
+  "message": "我想学习机器学习，你有什么建议吗？"
+}
+
+### 19. 多轮对话模拟 - 第二轮（流式）
+POST http://localhost:8080/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": "基于刚才的建议，请详细制定一个3个月的学习计划"
+}
+
+### ===========================================
+### 并发测试（需要工具支持）
+### ===========================================
+
+### 20. 并发测试 - 普通聊天 1
+POST http://localhost:8080/chat/message
+Content-Type: application/json
+
+{
+  "message": "并发测试消息1：请介绍Java并发编程"
+}
+
+### 21. 并发测试 - 普通聊天 2
+POST http://localhost:8080/chat/message
+Content-Type: application/json
+
+{
+  "message": "并发测试消息2：请介绍Spring框架"
+}
+
+### 22. 并发测试 - 流式聊天 1
+POST http://localhost:8080/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": "并发流式测试1：请详细解释分布式系统的CAP理论"
+}
+
+### 23. 并发测试 - 流式聊天 2
+POST http://localhost:8080/chat/stream-simple
+Content-Type: application/json
+Accept: text/plain
+
+{
+  "message": "并发流式测试2：请介绍微服务架构的设计原则"
+}
+
+### ===========================================
+### 测试说明和预期结果
+### ===========================================
+
+###
+### 测试环境要求：
+### 1. 确保 lqq-ai-agent 项目已启动
+### 2. 确保端口 8080 可用
+### 3. 确保 ChatModel 和 StreamingChatModel Bean 已正确配置
+### 4. 确保 DashScope API Key 已正确配置
+###
+### 测试步骤：
+### 1. 先执行健康检查（测试1），确认服务正常
+### 2. 测试普通聊天功能（测试2-4）
+### 3. 测试流式聊天功能（测试5-10）
+### 4. 执行错误处理测试（测试11-15）
+### 5. 执行性能测试（测试16-19）
+### 6. 可选：执行并发测试（测试20-23）
+###
+### 预期结果：
+### 
+### 普通聊天 (/chat/message)：
+### - 返回 JSON 格式响应
+### - 包含 success、message、timestamp 字段
+### - success=true 表示成功
+### - message 包含 AI 生成的回复内容
+###
+### 流式聊天 (/chat/stream)：
+### - 返回 Server-Sent Events 格式
+### - Content-Type: text/event-stream
+### - 数据格式：data: <content>\n\n
+### - 结束标志：data: [DONE]\n\n
+###
+### 简单流式聊天 (/chat/stream-simple)：
+### - 返回纯文本流
+### - Content-Type: text/plain
+### - 逐步输出响应内容
+###
+### 健康检查 (/chat/health)：
+### - 返回服务状态信息
+### - 包含 chatModel 和 streamingChatModel 可用性
+###
+### 错误情况：
+### - 空消息：返回错误提示
+### - 服务不可用：返回 500 错误
+### - 配置问题：返回相应错误信息
+###
+### 性能指标：
+### - 普通聊天响应时间：< 10秒
+### - 流式聊天首个token时间：< 3秒
+### - 健康检查响应时间：< 1秒
+###

@@ -1,0 +1,78 @@
+server:
+  port: 9999
+  context-path: /
+  session:
+    timeout: 28800
+  tomcat:
+    uri-encoding: UTF-8
+
+spring:
+  application:
+    name: AiDeepIn
+  profiles:
+    active: dev
+  mvc:
+    async:
+      request-timeout: 180000
+  jackson:
+    date-format: "yyyy-MM-dd HH:mm:ss"
+    time-zone: "GMT+8"
+    serialization: { write-dates-as-timestamps: false }
+  cache:
+    type: redis
+    redis:
+      key-prefix: 'AUTO_CACHE\:'
+      time-to-live: 1h
+  mail:
+    default-encoding: UTF-8
+    protocol: smtps
+    host: your-email-host  # smtp.exmail.qq.com
+    username: your-email-username # xxx@qq.com
+    password: your-email-password
+    port: 465
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 20MB
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+
+mybatis-plus:
+  # 支持统配符 * 或者 ; 分割
+  mapper-locations: classpath*:/mapper/*.xml
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    map-underscore-to-camel-case: true
+
+logging:
+  file:
+    name: /data/aideepin/logs
+
+adi:
+  host: aideepin.com
+  frontend-url: http://www.${adi.host}
+  backend-url: http://www.${adi.host}/api
+  proxy:
+    enable: false
+    host: 127.0.0.1
+    http-port: 1087
+  encrypt:
+    # 数据库敏感字段加密的密钥，不要泄露
+    # 项目首次编译时改成自己的密钥(长度为16的字符串如: Ap9da0CopbjiKGc1)
+    aes-key: Ap9da0CopbjiKGc1
+
+local:
+  files: /data/aideepin/files/
+  images: /data/aideepin/images/
+  watermark-images: /data/aideepin/mark-images/
+  thumbnails: /data/aideepin/thumbnails/
+  watermark-thumbnails: /data/aideepin/watermark-thumbnails/
+  tmp-images: /data/aideepin/tmp-images/
+  chat-memory: /data/aideepin/chat-memory/

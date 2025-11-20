@@ -1,0 +1,28 @@
+spring:
+  profiles:
+    active: test
+  
+# 测试环境配置
+langchain4j:
+  open-ai:
+    chat-model:
+      base-url: http://localhost:11434/v1
+      api-key: test-key
+      model-name: test-model
+
+# 日志配置
+logging:
+  level:
+    com.lqq.lqqaiagent: DEBUG
+    dev.langchain4j: DEBUG
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+
+# 禁用不需要的自动配置
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration

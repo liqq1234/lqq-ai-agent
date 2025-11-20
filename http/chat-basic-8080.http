@@ -1,0 +1,218 @@
+### ===========================================
+### 公开聊天功能测试文件 (无需登录)
+### 项目：lqq-ai-agent 
+### 端口：8080
+### 说明：这些接口已配置为公开访问，无需登录
+### 更新时间：2025-11-20
+### ===========================================
+
+### 1. 健康检查 - 验证聊天服务状态 (无需登录)
+GET http://localhost:8080/chat/health
+Accept: application/json
+
+### 2. 普通聊天测试 - 简单问候 (无需登录)
+POST http://localhost:8080/chat/message
+Content-Type: application/json
+
+{
+  "message": "你好，我是来测试聊天功能的用户"
+}
+
+### 3. 普通聊天测试 - 技术问题 (无需登录)
+POST http://localhost:8080/chat/message
+Content-Type: application/json
+
+{
+  "message": "请解释一下什么是LangChain4j框架？"
+}
+
+### 4. 流式聊天测试 (SSE) - 简单对话 (无需登录)
+POST http://localhost:8080/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": "请详细介绍一下Spring Boot的核心特性，用流式输出的方式"
+}
+
+### 5. 简单流式聊天测试 - 纯文本流 (无需登录)
+POST http://localhost:8080/chat/stream-simple
+Content-Type: application/json
+Accept: text/plain
+
+{
+  "message": "请解释一下什么是响应式编程？"
+}
+
+### 6. 流式聊天测试 - 代码生成 (无需登录)
+POST http://localhost:8080/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": "请帮我写一个简单的Java工具类，包含字符串处理方法，用流式输出展示"
+}
+
+### 7. 普通聊天测试 - 长文本 (无需登录)
+POST http://localhost:8080/chat/message
+Content-Type: application/json
+
+{
+  "message": "请写一篇关于人工智能在软件开发中应用的简短文章"
+}
+
+### 8. 流式聊天测试 - 创意内容 (无需登录)
+POST http://localhost:8080/chat/stream-simple
+Content-Type: application/json
+Accept: text/plain
+
+{
+  "message": "请创作一个关于程序员学习新技术的励志小故事"
+}
+
+### ===========================================
+### 错误处理测试 (无需登录)
+### ===========================================
+
+### 9. 空消息测试 - 普通聊天
+POST http://localhost:8080/chat/message
+Content-Type: application/json
+
+{
+  "message": ""
+}
+
+### 10. 空消息测试 - 流式聊天
+POST http://localhost:8080/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": ""
+}
+
+### 11. 特殊字符测试
+POST http://localhost:8080/chat/message
+Content-Type: application/json
+
+{
+  "message": "测试特殊字符：@#$%^&*()，请正常回复"
+}
+
+### 12. 中英文混合测试
+POST http://localhost:8080/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": "Please explain 机器学习 in both English and Chinese"
+}
+
+### ===========================================
+### 性能测试 (无需登录)
+### ===========================================
+
+### 13. 快速响应测试
+POST http://localhost:8080/chat/message
+Content-Type: application/json
+
+{
+  "message": "1+1等于几？"
+}
+
+### 14. 复杂计算测试 - 流式输出
+POST http://localhost:8080/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": "请计算斐波那契数列的前10项，并用流式输出逐步展示计算过程"
+}
+
+### 15. 并发测试准备 - 测试1
+POST http://localhost:8080/chat/message
+Content-Type: application/json
+
+{
+  "message": "并发测试1：请介绍Java基础知识"
+}
+
+### 16. 并发测试准备 - 测试2
+POST http://localhost:8080/chat/stream-simple
+Content-Type: application/json
+Accept: text/plain
+
+{
+  "message": "并发测试2：请介绍Python基础知识"
+}
+
+### ===========================================
+### 功能验证测试 (无需登录)
+### ===========================================
+
+### 17. 验证流式输出实时性
+POST http://localhost:8080/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": "请详细解释分布式系统的CAP理论，要求内容丰富，以便测试流式输出的实时性"
+}
+
+### 18. 验证普通聊天完整性
+POST http://localhost:8080/chat/message
+Content-Type: application/json
+
+{
+  "message": "请设计一个完整的用户管理系统的数据库表结构，包含用户表、角色表、权限表"
+}
+
+### 19. 验证简单流式聊天
+POST http://localhost:8080/chat/stream-simple
+Content-Type: application/json
+Accept: text/plain
+
+{
+  "message": "请介绍微服务架构的设计原则和最佳实践"
+}
+
+### 20. 最终综合测试
+POST http://localhost:8080/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": "请总结今天的聊天测试，分析流式输出和普通输出的区别，以及各自的适用场景"
+}
+
+### ===========================================
+### 测试说明
+### ===========================================
+
+###
+### 使用说明：
+### 1. 这个文件中的所有接口都已配置为公开访问，无需登录
+### 2. 可以直接运行测试，不需要先登录用户
+### 3. 适合快速验证聊天功能是否正常工作
+###
+### 测试顺序建议：
+### 1. 先执行健康检查（测试1）
+### 2. 测试普通聊天（测试2-3）
+### 3. 测试流式聊天（测试4-6）
+### 4. 执行错误处理测试（测试9-12）
+### 5. 执行性能测试（测试13-16）
+### 6. 执行功能验证（测试17-20）
+###
+### 预期结果：
+### - 健康检查返回服务状态信息
+### - 普通聊天返回 JSON 格式的成功响应
+### - 流式聊天返回 Server-Sent Events 格式的实时数据
+### - 简单流式聊天返回纯文本流
+### - 错误情况返回相应的错误信息
+###
+### 注意事项：
+### - 如果测试失败，检查服务是否已启动
+### - 确认端口8080可用
+### - 查看服务端日志获取详细错误信息
+### - 确保DashScope API Key已正确配置
+###
