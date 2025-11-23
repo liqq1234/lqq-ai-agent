@@ -6,7 +6,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 @MapperScan("com.lqq.lqqaiagent.mapper")
-
 public class LqqAiAgentApplication {
     public static void main(String[] args) {
 		SpringApplication.run(LqqAiAgentApplication.class, args);

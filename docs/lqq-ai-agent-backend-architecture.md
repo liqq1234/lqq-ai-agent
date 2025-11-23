@@ -272,3 +272,106 @@
 - 在 `LangChain4jConfig` 中固定一版「通用智能助手」的模型和参数配置示例。
 - 设计并记录一条从「前端发送消息」到「AppAssistant / StreamingChatModel」的详细时序图（对标本仓库 aideepin 文档中的第六节）。
 - 规划并记录知识库 / MCP / Workflow 模块在本项目中的落地位置与表结构草案。
+
+---
+
+## 八、创建应用（智能体）的后端流程（当前实现）
+
+下面以 `lqq-ai-agent` 中用户侧的“创建应用”流程为例，说明从请求进入到数据落库，后端具体做了哪些事情。这个流程对应 aideepin 中“新建智能体（预设对话）”的精简版实现。
+
+### 1. 请求入口：AppController 层
+
+- 前端在“新建应用/智能体”页面提交表单：
+  - 应用名称 `appName`
+  - 封面 `cover`（可选）
+  - 核心角色设定 `initPrompt`（必填）
+  - 代码生成类型 `codeGenType`（可选）
+- 对应的后端入口是 `lqq-chat` 模块中的：
+  - `AppController.addApp`（`POST /app/add`），请求 DTO 为 `AppAddRequest`。
+
+在这一层会做的事：
+
+- 参数反序列化：JSON → `AppAddRequest`。
+- 基础校验：
+  - `request` 非空；
+  - `initPrompt`、`appName` 必填，否则抛出 `PARAMS_ERROR`。
+- 鉴权：
+  - 通过 `UserService.getLoginUser` 读取当前登录用户，确保只有登录用户才能创建应用。
+- 记录日志：
+  - 打印当前用户 ID 和应用名称，方便后续排查。
+
+校验通过后，`AppController` 根据请求参数手动构造一个 `App` 实体对象，然后调用 `AppService.save(app)`。
+
+### 2. 核心业务：创建 App 实体（AppService / AppServiceImpl）
+
+在 `lqq-common.service` 中：
+
+- 接口层：`AppService extends IService<App>`，复用 MyBatis-Plus 的通用 `save` 能力。
+- 实现层：`AppServiceImpl` 覆盖了 `save(App entity)` 方法，用于在保存成功后清理缓存。
+
+创建应用时，`AppController.addApp` 会：
+
+- 组装实体对象 `App`：
+  - `appName`：应用名称。
+  - `cover`：封面。
+  - `initPrompt`：应用初始化 prompt（等价于智能体的 system prompt / 角色设定）。
+  - `codeGenType`：代码生成类型（如需要）。
+  - `priority`：默认优先级 `AppConstant.DEFAULT_PRIORITY`。
+  - `userId`：当前登录用户 ID，表示该应用的创建者 / 拥有者。
+  - `createTime`、`updateTime`、`editTime`：当前时间。
+  - `isDelete`：默认未删除 `AppConstant.NOT_DELETED`。
+- 调用 `appService.save(app)`：
+  - `AppServiceImpl.save` 内部先调用 `super.save(entity)` 完成 `INSERT INTO app (...)`；
+  - 保存成功后调用 `clearListCache()`：
+    - 删除热门应用列表缓存 `APP_LIST_CACHE_KEY`，保证后续查询能看到新应用。
+
+这一步完成后，数据库 `app` 表中多了一条新的应用记录，对应一个“智能体模板”。
+
+### 3. 用户与应用（智能体）的关系
+
+当前实现中，用户与应用的关系通过 `App.userId` 字段直接关联：
+
+- `userId` = 创建该应用的用户 ID。
+- 在 `AppController.listMyApps` 中，通过 `userid = loginUser.id` 条件查询当前用户自己的应用列表。
+
+和 aideepin 的 `ConversationPresetRelService` 相比：
+
+- 本项目暂时**没有单独的用户–应用关联表**（例如 `user_app_rel`）。
+- 所有权由 `App.userId` 直接表示，已经能满足「谁创建谁能编辑/删除」的需求。
+- 若后续需要「收藏别人的应用」「共享应用给多人使用」，可以再引入关联表来补充。
+
+### 4. 与会话、消息、知识库等后续能力的衔接
+
+在当前版本中：
+
+- 创建应用只负责**保存 App 模板本身**，暂未与会话、消息或知识库建立关系；
+- 聊天相关逻辑主要在 `ChatController` + `LangChain4jConfig` 中，尚未按 `appId` 细分不同智能体的行为。
+
+未来按照本架构文档第六节的规划，可以在此基础上扩展：
+
+- 引入 `Conversation` / `ConversationMessage` 表，建立“会话实例”和“历史消息”概念；
+- 在聊天接口中要求前端传入 `appId` / `conversationId`：
+  - 使用 `AppService` 加载对应的 App 配置（`initPrompt` 等）；
+  - 使用 `ConversationService` / `AiChatMemoryService` 管理会话和记忆；
+  - 在 AI Service（如 `AppAssistant`）中，根据 App 配置组装 system prompt 和工具 / 知识库上下文。
+
+### 5. 前端在创建应用后看到的效果
+
+- 接口返回值：
+  - `AppController.addApp` 返回 `BaseResponse<Long>`，其中 `data` 为新建应用的 `appId`。
+- 前端常见处理方式：
+  - 创建成功后，根据返回的 `appId`：
+    - 刷新“我的应用”列表，展示新建的智能体；
+    - 或直接跳转到该应用的详情/聊天页面，后续按 `appId` 发起对话。
+
+### 6. 小结（与 aideepin 的新建智能体对标）
+
+- 本项目中的 **App = 智能体模板**，对应 aideepin 的 `ConversationPreset`；
+- `AppController.addApp` + `AppService.save` 完成了：
+  - 参数校验 → 构造 App 实体 → 插入 `app` 表 → 清理相关缓存；
+- 与 aideepin 相比：
+  - 目前尚未实现知识库 / MCP / 模型等高级配置的关联；
+  - 用户–应用关系通过 `userId` 表示，暂未单独建关联表；
+  - 会话与消息管理仍待后续引入 `Conversation` / `ConversationMessage` 以及 `ConversationService`。
+
+这条链路已经可以作为后续“多智能体平台”改造的基础：你可以在不破坏现有创建流程的前提下，逐步在 App 实体和 Service 周围增加更多智能体配置能力。

@@ -1,0 +1,471 @@
+### ========================================
+### 对话持久化接口测试
+### 使用方式：在 IDEA 中点击每个请求旁边的绿色三角形按钮运行
+### 重要：需要先登录才能使用对话接口！
+### ========================================
+
+### 变量定义
+@baseUrl = http://localhost:8224
+@apiPrefix = /api/conversation
+@userApiPrefix = /api/user
+
+### ========================================
+### 0. 前置条件：用户登录（必须先执行）
+### ========================================
+
+### 0.1 用户注册（如果还没有账号）
+POST {{baseUrl}}{{userApiPrefix}}/register
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "123456",
+  "confirmPassword": "123456",
+  "userName": "测试用户"
+}
+
+### 注意：如果返回"用户已存在"，可以跳过这一步直接登录
+
+###
+
+### 0.2 用户登录（获取Session）⭐ 必须先执行
+POST {{baseUrl}}{{userApiPrefix}}/login
+Content-Type: application/json
+
+{
+  "email": "3477981312@qq.com",
+  "password": "12345678"
+}
+
+
+### 0.3 获取当前登录用户信息（验证登录状态）
+GET {{baseUrl}}{{userApiPrefix}}/get/login
+
+
+
+### ========================================
+### 1. 创建新对话
+### ========================================
+POST {{baseUrl}}{{apiPrefix}}/create
+Content-Type: application/json
+
+### 预期返回：
+# {
+#   "code": 0,
+#   "data": 1,  // 新对话的ID
+#   "message": "ok"
+# }
+
+
+### ========================================
+### 2. 获取对话列表
+### ========================================
+GET {{baseUrl}}{{apiPrefix}}/list
+
+### 预期返回：
+# {
+#   "code": 0,
+#   "data": [
+#     {
+#       "id": 1,
+#       "title": "新对话",
+#       "lastMessage": "Hello",
+#       "messageCount": 2,
+#       "createTime": "2025-11-23T16:00:00",
+#       "updateTime": "2025-11-23T16:00:00"
+#     }
+#   ],
+#   "message": "ok"
+# }
+
+
+### ========================================
+### 3. 获取对话详情（包含所有消息）
+### ========================================
+GET {{baseUrl}}{{apiPrefix}}/1
+
+### 注意：将 URL 中的 1 替换为实际的对话ID
+
+### 预期返回：
+# {
+#   "code": 0,
+#   "data": {
+#     "id": 1,
+#     "title": "新对话",
+#     "createTime": "2025-11-23T16:00:00",
+#     "updateTime": "2025-11-23T16:00:00",
+#     "messages": [
+#       {
+#         "id": 1,
+#         "role": "user",
+#         "content": "Hello",
+#         "createTime": "2025-11-23T16:00:00",
+#         "timestamp": 1700740800000
+#       },
+#       {
+#         "id": 2,
+#         "role": "assistant",
+#         "content": "Hi there!",
+#         "createTime": "2025-11-23T16:00:01",
+#         "timestamp": 1700740801000
+#       }
+#     ]
+#   },
+#   "message": "ok"
+# }
+
+
+### ========================================
+### 4. 保存用户消息
+### ========================================
+POST {{baseUrl}}{{apiPrefix}}/message/save
+Content-Type: application/json
+
+{
+  "conversationId": 1,
+  "role": "user",
+  "content": "这是一条测试消息"
+}
+
+### 注意：conversationId 需要替换为实际的对话ID
+
+### 预期返回：
+# {
+#   "code": 0,
+#   "data": null,
+#   "message": "ok"
+# }
+
+
+### ========================================
+### 5. 保存 AI 回复消息
+### ========================================
+POST {{baseUrl}}{{apiPrefix}}/message/save
+Content-Type: application/json
+
+{
+  "conversationId": 1,
+  "role": "assistant",
+  "content": "这是 AI 的回复"
+}
+
+### 预期返回：
+# {
+#   "code": 0,
+#   "data": null,
+#   "message": "ok"
+# }
+
+
+### ========================================
+### 6. 更新对话标题
+### ========================================
+PUT {{baseUrl}}{{apiPrefix}}/1/title?title=我的第一个对话
+Content-Type: application/json
+
+### 注意：
+# - URL 中的 1 替换为实际的对话ID
+# - title 参数是查询参数，直接在 URL 中
+
+### 预期返回：
+# {
+#   "code": 0,
+#   "data": null,
+#   "message": "ok"
+# }
+
+
+### ========================================
+### 7. 删除对话
+### ========================================
+DELETE {{baseUrl}}{{apiPrefix}}/1
+
+### 注意：URL 中的 1 替换为实际的对话ID
+### 警告：此操作不可恢复！
+
+### 预期返回：
+# {
+#   "code": 0,
+#   "data": null,
+#   "message": "ok"
+# }
+
+
+### ========================================
+### 完整测试流程（按顺序执行）⭐ 推荐
+### ========================================
+
+### 步骤0：用户登录（必须先执行）
+POST {{baseUrl}}{{userApiPrefix}}/login
+Content-Type: application/json
+
+{
+  "email": "3477981312@qq.com",
+  "password": "12345678"
+}
+
+###
+
+### 步骤1：创建新对话
+POST {{baseUrl}}{{apiPrefix}}/create
+Content-Type: application/json
+
+###
+
+### 步骤2：保存第一条用户消息
+POST {{baseUrl}}{{apiPrefix}}/message/save
+Content-Type: application/json
+
+{
+  "conversationId": 1,
+  "role": "user",
+  "content": "你好，AI！"
+}
+
+###
+
+### 步骤3：保存 AI 回复
+POST {{baseUrl}}{{apiPrefix}}/message/save
+Content-Type: application/json
+
+{
+  "conversationId": 1,
+  "role": "assistant",
+  "content": "你好！我是 AI 助手，有什么可以帮助你的吗？"
+}
+
+###
+
+### 步骤4：保存第二条用户消息
+POST {{baseUrl}}{{apiPrefix}}/message/save
+Content-Type: application/json
+
+{
+  "conversationId": 1,
+  "role": "user",
+  "content": "帮我介绍一下对话持久化功能"
+}
+
+###
+
+### 步骤5：保存第二条 AI 回复
+POST {{baseUrl}}{{apiPrefix}}/message/save
+Content-Type: application/json
+
+{
+  "conversationId": 1,
+  "role": "assistant",
+  "content": "对话持久化功能可以将您的聊天记录保存到数据库，即使刷新页面或重新登录，之前的对话内容依然存在。"
+}
+
+###
+
+### 步骤6：查看对话列表（应该看到1个对话）
+GET {{baseUrl}}{{apiPrefix}}/list
+
+###
+
+### 步骤7：查看对话详情（应该看到4条消息）
+GET {{baseUrl}}{{apiPrefix}}/1
+
+###
+
+### 步骤8：更新对话标题
+PUT {{baseUrl}}{{apiPrefix}}/1/title?title=对话持久化测试
+Content-Type: application/json
+
+###
+
+### 步骤9：再次查看对话列表（标题应该已更新）
+GET {{baseUrl}}{{apiPrefix}}/list
+
+###
+
+
+### ========================================
+### 错误场景测试
+### ========================================
+
+### 测试1：保存消息到不存在的对话
+POST {{baseUrl}}{{apiPrefix}}/message/save
+Content-Type: application/json
+
+{
+  "conversationId": 9999,
+  "role": "user",
+  "content": "测试不存在的对话"
+}
+
+### 预期：返回错误信息
+
+###
+
+### 测试2：获取不存在的对话详情
+GET {{baseUrl}}{{apiPrefix}}/9999
+
+### 预期：返回 404 或错误信息
+
+###
+
+### 测试3：保存空消息
+POST {{baseUrl}}{{apiPrefix}}/message/save
+Content-Type: application/json
+
+{
+  "conversationId": 1,
+  "role": "user",
+  "content": ""
+}
+
+### 预期：返回验证错误
+
+###
+
+### 测试4：错误的角色类型
+POST {{baseUrl}}{{apiPrefix}}/message/save
+Content-Type: application/json
+
+{
+  "conversationId": 1,
+  "role": "invalid_role",
+  "content": "测试错误角色"
+}
+
+### 预期：应该能保存，但不符合业务规范
+
+###
+
+
+### ========================================
+### 批量测试数据创建
+### ========================================
+
+### 创建第二个对话
+POST {{baseUrl}}{{apiPrefix}}/create
+Content-Type: application/json
+
+###
+
+### 在第二个对话中添加消息
+POST {{baseUrl}}{{apiPrefix}}/message/save
+Content-Type: application/json
+
+{
+  "conversationId": 2,
+  "role": "user",
+  "content": "这是第二个对话的第一条消息"
+}
+
+###
+
+### 创建第三个对话
+POST {{baseUrl}}{{apiPrefix}}/create
+Content-Type: application/json
+
+###
+
+### 在第三个对话中添加消息
+POST {{baseUrl}}{{apiPrefix}}/message/save
+Content-Type: application/json
+
+{
+  "conversationId": 3,
+  "role": "user",
+  "content": "这是第三个对话的第一条消息"
+}
+
+###
+
+### 查看所有对话
+GET {{baseUrl}}{{apiPrefix}}/list
+
+###
+
+
+### ========================================
+### 性能测试（可选）
+### ========================================
+
+### 创建对话并快速添加多条消息
+POST {{baseUrl}}{{apiPrefix}}/create
+
+###
+
+POST {{baseUrl}}{{apiPrefix}}/message/save
+Content-Type: application/json
+
+{
+  "conversationId": 4,
+  "role": "user",
+  "content": "消息1"
+}
+
+###
+
+POST {{baseUrl}}{{apiPrefix}}/message/save
+Content-Type: application/json
+
+{
+  "conversationId": 4,
+  "role": "assistant",
+  "content": "回复1"
+}
+
+###
+
+POST {{baseUrl}}{{apiPrefix}}/message/save
+Content-Type: application/json
+
+{
+  "conversationId": 4,
+  "role": "user",
+  "content": "消息2"
+}
+
+###
+
+POST {{baseUrl}}{{apiPrefix}}/message/save
+Content-Type: application/json
+
+{
+  "conversationId": 4,
+  "role": "assistant",
+  "content": "回复2"
+}
+
+###
+
+### 查看这个对话的详情
+GET {{baseUrl}}{{apiPrefix}}/4
+
+###
+
+
+### ========================================
+### 清理测试数据（谨慎使用）
+### ========================================
+
+### 删除测试对话1
+DELETE {{baseUrl}}{{apiPrefix}}/1
+
+###
+
+### 删除测试对话2
+DELETE {{baseUrl}}{{apiPrefix}}/2
+
+###
+
+### 删除测试对话3
+DELETE {{baseUrl}}{{apiPrefix}}/3
+
+###
+
+### 删除测试对话4
+DELETE {{baseUrl}}{{apiPrefix}}/4
+
+###
+
+### 验证删除结果（应该返回空列表）
+GET {{baseUrl}}{{apiPrefix}}/list
+
+###

@@ -1,5 +1,8 @@
 package com.lqq.lqqaiagent.controller;
 
+import com.lqq.lqqaiagent.common.BaseResponse;
+import com.lqq.lqqaiagent.common.ResultUtils;
+import com.lqq.lqqaiagent.exception.ErrorCode;
 import dev.langchain4j.data.message.UserMessage;
 import dev.langchain4j.model.chat.response.StreamingChatResponseHandler;
 import dev.langchain4j.model.chat.ChatModel;
@@ -11,6 +14,7 @@ import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMethod;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Sinks;
 
@@ -37,36 +41,43 @@ public class ChatController {
      * 普通聊天接口
      */
     @PostMapping("/message")
-    public Map<String, Object> chat(@RequestBody Map<String, String> request) {
+    public BaseResponse<Map<String, Object>> chat(@RequestBody Map<String, String> request) {
         String message = request.get("message");
-        log.info("收到聊天请求: {}", message);
+        String conversationId = request.get("conversationId");
+        log.info("收到聊天请求: {}, conversationId={}", message, conversationId);
         
         try {
             String response = chatModel.chat(message);
             log.info("聊天响应完成，长度: {}", response.length());
             
-            return Map.of(
-                "success", true,
+            Map<String, Object> data = Map.of(
                 "message", response,
                 "timestamp", System.currentTimeMillis()
             );
+            return ResultUtils.success(data);
         } catch (Exception e) {
             log.error("聊天请求处理失败", e);
-            return Map.of(
-                "success", false,
-                "error", e.getMessage(),
-                "timestamp", System.currentTimeMillis()
-            );
+            return ResultUtils.error(ErrorCode.SYSTEM_ERROR, e.getMessage());
         }
     }
 
     /**
      * 流式聊天接口 - 使用 Server-Sent Events (SSE)
+     * 支持 GET 和 POST 两种方式
      */
-    @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> streamChat(@RequestBody Map<String, String> request) {
-        String message = request.get("message");
-        log.info("收到流式聊天请求: {}", message);
+    @RequestMapping(value = "/stream", method = {RequestMethod.GET, RequestMethod.POST}, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public Flux<String> streamChat(
+            @RequestParam(value = "message", required = false) String messageParam,
+            @RequestParam(value = "conversationId", required = false) Long conversationIdParam,
+            @RequestBody(required = false) Map<String, String> request) {
+        // 优先使用 GET 参数，否则使用 POST body
+        String message = messageParam != null ? messageParam : 
+                        (request != null ? request.get("message") : null);
+        Long conversationId = conversationIdParam != null ? conversationIdParam : 
+                        (request != null && request.get("conversationId") != null
+                                ? Long.valueOf(request.get("conversationId"))
+                                : null);
+        log.info("收到流式聊天请求: {}, conversationId={}", message, conversationId);
         
         // 创建一个 Sink 来发送流式数据
         Sinks.Many<String> sink = Sinks.many().multicast().onBackpressureBuffer();
@@ -160,12 +171,13 @@ public class ChatController {
      * 健康检查接口
      */
     @GetMapping("/health")
-    public Map<String, Object> health() {
-        return Map.of(
+    public BaseResponse<Map<String, Object>> health() {
+        Map<String, Object> data = Map.of(
             "status", "ok",
             "timestamp", System.currentTimeMillis(),
             "chatModel", chatModel != null ? "available" : "unavailable",
             "streamingChatModel", streamingChatModel != null ? "available" : "unavailable"
         );
+        return ResultUtils.success(data);
     }
 }

@@ -21,6 +21,13 @@
             <artifactId>lqq-common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
+
+        <!-- 依赖聊天模块，包含 Controller -->
+        <dependency>
+            <groupId>com.lqq</groupId>
+            <artifactId>lqq-chat</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <build>

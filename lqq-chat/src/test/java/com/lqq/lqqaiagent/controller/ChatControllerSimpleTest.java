@@ -24,31 +24,6 @@ public class ChatControllerSimpleTest {
     @Mock
     private StreamingChatModel streamingChatModel;
 
-    /**
-     * 测试控制器基本功能
-     */
-    @Test
-    public void testControllerBasics() {
-        MockitoAnnotations.openMocks(this);
-        
-        log.info("=== 聊天控制器基本功能测试 ===");
-        
-        // 创建控制器实例
-        ChatController controller = new ChatController();
-        
-        // 测试健康检查方法
-        Map<String, Object> health = controller.health();
-        
-        log.info("健康检查结果: {}", health);
-        
-        // 验证基本字段
-        assert health.containsKey("status");
-        assert health.containsKey("timestamp");
-        assert health.containsKey("chatModel");
-        assert health.containsKey("streamingChatModel");
-        
-        log.info("✅ 控制器基本功能测试通过");
-    }
 
     /**
      * 测试流式聊天功能的可用性

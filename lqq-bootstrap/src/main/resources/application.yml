@@ -69,6 +69,8 @@ dashscope:
 
 server:
   port: 8224
+  servlet:
+    context-path: /api  # 统一 API 前缀
 
 logging:
   level:

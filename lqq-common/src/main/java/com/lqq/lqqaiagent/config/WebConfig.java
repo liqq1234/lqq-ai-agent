@@ -18,11 +18,13 @@ public class WebConfig implements WebMvcConfigurer {
                 .addPathPatterns("/**")
                 .excludePathPatterns("/css/**", "/js/**", "/images/**", "/favicon.ico")
                 .excludePathPatterns("/user/login", "/user/register", "/user/logout")
+                .excludePathPatterns("/api/user/**")
                 .excludePathPatterns("/chat/**")  // 排除聊天相关路径，允许公开访问
                 .excludePathPatterns("/crawler/**", "/test.html")
                 .excludePathPatterns("/doc.html", "/webjars/**", "/v3/api-docs/**", "/swagger-ui/**")  // 排除API文档相关路径
                 .excludePathPatterns("/error", "/actuator/**")  // 排除错误页面和监控端点
                 .excludePathPatterns("/agent/**", "/codegen/**")  // 排除Agent和代码生成相关路径
+                .excludePathPatterns("/api/codegen/**")
                 .excludePathPatterns("/streaming-chat-test.html");  // 排除流式聊天测试页面
     }
 }

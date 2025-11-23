@@ -23,6 +23,11 @@ public class UserContextInterceptor implements HandlerInterceptor {
                              HttpServletResponse response,
                              Object handler) {
 
+        // 放行 OPTIONS 请求（CORS 预检请求）
+        if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
+            return true;
+        }
+
         // 从 Session 获取当前登录用户
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
         ThrowUtils.throwIf(userObj == null, ErrorCode.NOT_LOGIN);

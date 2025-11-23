@@ -25,6 +25,14 @@ public class UserContext {
     }
 
     /**
+     * 获取当前登录用户 ID（若未登录返回 null）
+     */
+    public static Long getCurrentUserId() {
+        User user = USER_HOLDER.get();
+        return user != null ? user.getId() : null;
+    }
+
+    /**
      * 清除当前线程的用户信息（防止内存泄漏）
      */
     public static void clear() {
